@@ -66,7 +66,7 @@ theta = initializeParameters(hiddenSize, visibleSize);
 %  gave in Step 0 above.
 
 [cost, grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, lambda, ...
-                                     sparsityParam, beta, patches);
+                                     sparsityParam, beta, patches); %#ok<ASGLU>
 
 %%======================================================================
 %% STEP 3: Gradient Checking

@@ -20,7 +20,7 @@ b2 = theta(2*hiddenSize*visibleSize+hiddenSize+1:end);
 
 % Cost and gradient variables (your code needs to compute these values). 
 % Here, we initialize them to zeros. 
-cost = 0;
+cost = 0; %#ok<NASGU>
 W1grad = zeros(size(W1)); 
 W2grad = zeros(size(W2));
 b1grad = zeros(size(b1)); 
@@ -42,23 +42,59 @@ b2grad = zeros(size(b2));
 % the gradient descent update to W1 would be W1 := W1 - alpha * W1grad, and similarly for W2, b1, b2. 
 % 
 
+m = size(data,2);
+rho_hat = zeros(size(b1));
 
+% calculate sparsity derivative
+for i=1:m,
+    % feedforward
+    a1 = data(:,i);
+    z2 = W1*a1 + b1;
+    a2 = sigmoid(z2);
+    
+    rho_hat = rho_hat + a2;
+end
+rho_hat = rho_hat/m;
+sparsity_deriv = beta*...
+    (-sparsityParam./rho_hat + (1-sparsityParam)./(1-rho_hat));
 
+% calculate deltas and gradients
+cost_err = 0;
+for i=1:m,
+    % feedforward
+    a1 = data(:,i);
+    z2 = W1*a1 + b1;
+    a2 = sigmoid(z2);
+    z3 = W2*a2 + b2;
+    a3 = sigmoid(z3);
+    
+    % cost due to error
+    err = a3 - a1;
+    cost_err = cost_err + err'*err/2;
+    
+    % deltas
+    delta3 = err.*a3.*(1 - a3);
+    delta2 = (W2'*delta3 + sparsity_deriv).*a2.*(1 - a2);
+    
+    % gradients
+    W2grad = W2grad + delta3*a2';
+    W1grad = W1grad + delta2*a1';
+    b2grad = b2grad + delta3;
+    b1grad = b1grad + delta2;
+end
+W2grad = W2grad/m + lambda*W2;
+W1grad = W1grad/m + lambda*W1;
+b2grad = b2grad/m;
+b1grad = b1grad/m;
 
+KLdiv = sparsityParam*log(sparsityParam./rho_hat) + ...
+    (1 - sparsityParam)*log((1 - sparsityParam)./(1 - rho_hat));
 
+cost_err = cost_err/m;
+cost_weights = lambda/2*(sum(W1(:).^2) + sum(W2(:).^2)); % w regularization
+cost_sparse = beta*sum(KLdiv); % induce "sparsity"
 
-
-
-
-
-
-
-
-
-
-
-
-
+cost = cost_err + cost_weights + cost_sparse;
 
 %-------------------------------------------------------------------
 % After computing the cost and gradient, we will convert the gradients back
