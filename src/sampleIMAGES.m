@@ -2,7 +2,7 @@ function patches = sampleIMAGES()
 % sampleIMAGES
 % Returns 10000 patches for training
 
-load IMAGES;    % load images from disk 
+load ../data/IMAGES;    % load images from disk 
 
 patchsize = 8;  % we'll use 8x8 patches 
 numpatches = 10000;
@@ -24,14 +24,17 @@ patches = zeros(patchsize*patchsize, numpatches);
 %  patch corresponding to the pixels in the block (21,21) to (30,30) of
 %  Image 1
 
-
-
-
-
-
-
-
-
+for i=1:numpatches,
+    img_ind = ceil(10*rand);
+    st_ind1 = ceil((512 - patchsize + 1)*rand);
+    nd_ind1 = st_ind1 + patchsize - 1;
+    st_ind2 = ceil((512 - patchsize + 1)*rand);
+    nd_ind2 = st_ind2 + patchsize - 1;
+    
+    patch = IMAGES(st_ind1:nd_ind1, st_ind2:nd_ind2, img_ind);
+    
+    patches(:,i) = reshape(patch,patchsize*patchsize,1);
+end
 
 %% ---------------------------------------------------------------
 % For the autoencoder to work well we need to normalize the data

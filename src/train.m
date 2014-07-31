@@ -1,5 +1,8 @@
 %% CS294A/CS294W Programming Assignment Starter Code
 
+close all;
+clear all;
+
 %  Instructions
 %  ------------
 % 
